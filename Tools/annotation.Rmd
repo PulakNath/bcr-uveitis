@@ -1,0 +1,294 @@
+
+---
+# This RMD file loads the marker identified seurat object, annotates the clusters, does population level analysis and integrates ADT data with GEX data
+# Author : Vijay Nagarajan, NEI/NIH
+title: "Annotation, ADT integration"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: no
+---
+
+```{r setup, include=FALSE}
+options(knitr.duplicate.label = "allow")
+knitr::opts_chunk$set()
+knitr::purl(input="/data/../TotalSeq/Tools/annotation.Rmd", output="/data/../TotalSeq/Tools/annotation.R")
+```
+
+## 1. Introduction
+This document takes the QCd, normalized, scaled, batch corrected, clustered, marker identified data, annotates the clusters and integrates ADT data to GEX data
+```{r packages, message=FALSE, warning=FALSE}
+#Install and load required R packages. Install the packages if you do not already have them installed
+devtools::install_github("grisslab/scClassifR")
+#BiocManager::install("celldex")
+BiocManager::install("SCINA", update=FALSE)
+install.packages("devtools", repos='http://cran.us.r-project.org')
+devtools::install_github("PulakNath/scCATCH")
+install.packages("HGNChelper", repos='http://cran.us.r-project.org')
+devtools::install_github("rpolicastro/scProportionTest")
+library("scProportionTest")
+library(HGNChelper)
+library(scClassifR)
+library(SingleCellExperiment)
+library(SingleR)
+library(celldex)
+#library(SCINA)
+library(Seurat)
+library(kableExtra)
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+library(rmarkdown)
+library(scCATCH)
+
+```
+
+## 2. Load QC'd, normalized, scaled, batch corrected data and clustered data
+```{r dataload, message=FALSE, warning=FALSE}
+# Load QCd, normalized data
+load('/data/../TotalSeq/Results/markers/SeuratObjectAfterMarker.RData')
+# Output path
+outputpath="/data/../TotalSeq/Results/annotation/"
+# Set working directory
+#setwd(outputpath)
+```
+
+## 3. Cluster 5 as NK
+```{r annotationcluster5, message=FALSE, warning=FALSE}
+# Since NK cells are predominantly in cluster 5, we could find markers within this cluster for HC vs BCR-UV
+Idents(allsamples) <- "RNA_snn_res.0.25"
+prop.table(table(Idents(allsamples)))
+table(Idents(allsamples))
+
+# Current identity levels
+levels(allsamples)
+head(Idents(allsamples))
+
+# Take all cells in cluster 5, and find markers that separate 'HC' and 'BCR-UV' that are in the 'orig.ident' column. subset.ident would the default identity of clusters
+markersinnkgroup <- FindMarkers(allsamples, ident.1 = "HC", ident.2 = "BCR-UV", group.by = 'type', subset.ident = 5)
+
+# Save markers
+write.table(markersinnkgroup, file="/data/../TotalSeq/Results/annotation/markersinnkgroup.txt", quote=F, row.names = TRUE, sep = "\t")
+
+# Plot top2 up and top2 down regulated markers
+VlnPlot(allsamples,idents = c("5"),features=c("FOS","MYOM2","PTGDS","MTRNR2L8"), group.by = "type", pt.size = 0, ncol=2)
+
+cluster5vln = VlnPlot(allsamples,idents = c("5"),features=c("FOS","MYOM2","PTGDS","MTRNR2L8"), group.by = "type", pt.size = 0, ncol=2)
+
+ggsave(paste(outputpath,"violin-with-cluster5nk-markers.pdf",sep=""), plot = cluster5vln, width = 20, height = 15, units = "cm")
+
+FeaturePlot(allsamples, features=c("FOS","MYOM2","PTGDS","MTRNR2L8"), split.by = "type", min.cutoff = "q50", max.cutoff = "q90")
+
+cluster5fp=FeaturePlot(allsamples, features=c("FOS","MYOM2","PTGDS","MTRNR2L8"), split.by = "type", min.cutoff = "q50", max.cutoff = "q90")
+
+ggsave(paste(outputpath,"umap-with-cluster5-markers.pdf",sep=""), plot = cluster5fp, width = 20, height = 15, units = "cm")
+#sort -n -k3 markersinnkgroup.txt | head
+```
+
+## 4. Annotation with sc-type
+```{r annotationsctype, message=FALSE, warning=FALSE}
+## SC-TYPE
+## Get reference data
+source("/data/../TotalSeq/Tools/sctype/gene_sets_prepare.R")
+source("/data/../TotalSeq/Tools/sctype/sctype_score_.R")
+db_ = "/data/../TotalSeq/Tools/sctype/ScTypeDB_short.xlsx";
+# Set tissue as immune system
+tissue = "Immune system"
+# Prepare marker gene list
+gs_list = gene_sets_prepare(db_, tissue)
+
+# get cell-type by cell matrix
+es.max = sctype_score(scRNAseqData = allsamples[["RNA"]]@scale.data, scaled = TRUE, gs = gs_list$gs_positive, gs2 = gs_list$gs_negative)
+
+# merge by cluster (column )
+cL_resutls = do.call("rbind", lapply(unique(allsamples@meta.data$RNA_snn_res.0.25), function(cl){
+    es.max.cl = sort(rowSums(es.max[ ,rownames(allsamples@meta.data[allsamples@meta.data$RNA_snn_res.0.25==cl, ])]), decreasing = !0)
+    head(data.frame(cluster = cl, type = names(es.max.cl), scores = es.max.cl), 10)
+}))
+
+# List top cell types
+cL_resutls %>% group_by(cluster) %>% top_n(n = 1)   
+
+# Save sctype annottions
+write.table(as.data.frame(cL_resutls %>% group_by(cluster) %>% top_n(n = 1)), file="/data/../TotalSeq/Results/annotation/sctype_annotations.txt", quote=F, row.names = FALSE, sep = "\t")
+
+# Add sctype metadata
+allsamples@meta.data$sctype = ""
+for(j in unique(cL_resutls$cluster)){
+  cl_type = cL_resutls[cL_resutls$cluster==j,]; cl_type = cl_type[order(cl_type$scores, decreasing = T), ]
+  if(cl_type$scores[1]>0){
+    allsamples@meta.data$sctype[allsamples@meta.data$RNA_snn_res.0.25 == j] = as.character(cl_type$type[1])
+  } else {
+    allsamples@meta.data$sctype[allsamples@meta.data$RNA_snn_res.0.25 == j] = "Unknown"
+  }
+}
+
+# create and save umap with labels
+DimPlot(allsamples, reduction = "umap", label = TRUE, repel = TRUE, group.by = 'sctype', split.by = "type")        
+an0=DimPlot(allsamples, reduction = "umap", label = TRUE, repel = TRUE, group.by = 'sctype', split.by = "type")  
+an0a=an0+theme(legend.position="none")
+an0a
+#sctypelabel=DimPlot(allsamples, reduction = "umap", label = TRUE, repel = TRUE, group.by = 'sctype', split.by = "type")        
+#sctypelabel=sctypelabel+theme(legend.position="none)
+ggsave(paste(outputpath,"umap-with-sctype.pdf",sep=""),plot=an0a, width = 50, height = 30, units = "cm")
+
+
+## Run scsa using the scsa_workflow.R script
+```
+
+## 5. Manual annotation
+```{r manualannotation, message=FALSE, warning=FALSE}
+## Annotation from scsa, sc-type are combined and manually annotated by Researcher
+# Copy cluster column
+allsamples[["annotated_RNA_snn_res.0.25"]] = allsamples[["RNA_snn_res.0.25"]]
+# Set identity column
+Idents(allsamples) <- "annotated_RNA_snn_res.0.25"
+# Rename classes.
+
+# Read annotation file
+myannotations=read.csv("/data/../TotalSeq/Results/annotation/manualannotation.csv",sep=",")
+
+# Map manual annotation
+allsamples$annotated_RNA_snn_res.0.25 <- plyr::mapvalues(
+  x = allsamples$RNA_snn_res.0.25,
+  from = myannotations$clusternumber,
+  to = myannotations$clustername
+)
+
+Idents(allsamples) <- "annotated_RNA_snn_res.0.25"
+head(allsamples)
+
+# create and save umap with manual annotation labels
+an1=DimPlot(allsamples, reduction = "umap", label = TRUE, repel = TRUE, group.by = 'annotated_RNA_snn_res.0.25')
+an1a=an1+theme(legend.position="none")
+an1a
+an2=DimPlot(allsamples, reduction = "umap", label = TRUE, repel = TRUE, group.by = 'annotated_RNA_snn_res.0.25', split.by = "type")
+an2a=an2+theme(legend.position="none")
+an2a      
+#scsalabel=DimPlot(allsamples, reduction = "umap", label = TRUE, repel = TRUE, group.by = 'annotated_RNA_snn_res.0.25', split.by = "type")+theme(legend.position="none)   
+ggsave(paste(outputpath,"umap-manual-annotation.pdf",sep=""), plot=an2a, width = 50, height = 30, units = "cm")
+```
+
+## 6. Proportion test
+```{r proportiontest, message=FALSE, warning=FALSE}
+# Sample proportion table
+# Proportion and counts of cells in individual samples
+# Change identity to 0.25 cluster resolution
+
+# Proportion test
+# assign sample group
+allsamples$sample=ifelse(grepl("HC",allsamples$type), "HC", ifelse(grepl("UV",allsamples$type), "UV", ""))
+
+Idents(allsamples) <- "RNA_snn_res.0.25"
+prop.table(table(Idents(allsamples), allsamples$sample))
+table(Idents(allsamples), allsamples$sample)
+# Save tables
+write.table(prop.table(table(Idents(allsamples), allsamples$sample)), file=paste(outputpath,"cluster-proportions.txt",sep=""), quote=F, sep = "\t")
+write.table(table(Idents(allsamples), allsamples$sample), file=paste(outputpath,"cluster-counts.txt",sep=""), quote=F, sep = "\t")
+
+# Sample proportion table based on manual annotation
+# Proportion and counts of cells in individual samples
+# Change identity to manual annotation
+Idents(allsamples) <- "annotated_RNA_snn_res.0.25"
+prop.table(table(Idents(allsamples), allsamples$sample))
+table(Idents(allsamples), allsamples$sample)
+# Save tables
+write.table(prop.table(table(Idents(allsamples), allsamples$sample)), file=paste(outputpath,"cluster-proportions-annotated.txt",sep=""), quote=F, sep = "\t")
+write.table(table(Idents(allsamples), allsamples$sample), file=paste(outputpath,"cluster-counts-annotated.txt",sep=""), quote=F, sep = "\t")
+
+# Run permutation test
+prop_test <- sc_utils(allsamples)
+prop_test <- permutation_test(
+	prop_test, cluster_identity = "annotated_RNA_snn_res.0.25",
+  #prop_test, cluster_identity = "RNA_snn_res.0.25",
+	sample_1 = "HC", sample_2 = "UV",
+	sample_identity = "sample",
+	n_permutations = 10000
+)
+
+plot_data=prop_test@results$permutation
+plot_data
+
+FDR_threshold = 0.05
+log2FD_threshold = log2(1.5)
+order_clusters = TRUE
+
+plot_data[, significance := ifelse(
+  FDR < FDR_threshold & abs(obs_log2FD) > log2FD_threshold,
+  paste("FDR <", FDR_threshold, "& abs(Log2FD) >", round(log2FD_threshold, 2)),
+  "n.s."
+)]
+
+plot_data[, significance := factor(significance, levels = c(
+  paste("FDR <", FDR_threshold, "& abs(Log2FD) >", round(log2FD_threshold, 2)),
+  "n.s."
+))]
+
+#library(tidyverse)
+## Order the clusters by observed log2FD if requested.
+if (order_clusters) {
+  plot_data[, clusters := fct_reorder(factor(clusters), dplyr::desc(obs_log2FD))]
+}
+
+## Plot the results.
+p <- ggplot(plot_data, aes(x = clusters, y = obs_log2FD)) +
+  geom_pointrange(aes(ymin = boot_CI_2.5, ymax = boot_CI_97.5, color = significance)) +
+  theme_bw() +
+  geom_hline(yintercept = log2FD_threshold, lty = 2) +
+  geom_hline(yintercept = -log2FD_threshold, lty = 2) +
+  geom_hline(yintercept = 0) +
+  scale_color_manual(values = c("salmon", "grey")) +
+  coord_flip()
+
+p
+
+ggsave(paste(outputpath,"cluster_proportion_test.pdf",sep=""), plot=p)
+
+
+#archive code below
+#permutation_plot(prop_test)
+#png("proportion.png")
+#permutation_plot(prop_test)
+#dev.off()
+```
+
+## 7. ADT with GEX
+```{r adtgex, message=FALSE, warning=FALSE}
+# Visualize ADT with GEX data
+# Specify key for rna features and ADT features
+# Add rna_ or adt_ to any gene to visualize
+rownames(allsamples[["ADT"]])
+Key(allsamples[["RNA"]])
+Key(allsamples[["ADT"]])
+head(as.data.frame(rownames(allsamples)))
+
+adtfeatures=c("adt_CD45","adt_CD45RA","adt_CD45RO","adt_CD196-CCR6","adt_CD197-CCR7","adt_CD11c")
+gexfeatures=c("rna_PTPRC","rna_PTPRC","rna_PTPRC","rna_CCR6","rna_CCR7","rna_ITGAX")
+
+p1 <- FeaturePlot(allsamples, features=adtfeatures, min.cutoff = "q25", max.cutoff = "q90", split.by = "type")
+p2 <- FeaturePlot(allsamples, features=gexfeatures, min.cutoff = "q25", max.cutoff = "q90", split.by = "type")
+p1 | p2
+p3=p1|p2
+
+ggsave(paste(outputpath,"umap-with-adt.pdf",sep=""), plot = p1, width = 20, height = 40, units = "cm")
+ggsave(paste(outputpath,"umap-with-gex.pdf",sep=""), plot = p2, width = 20, height = 40, units = "cm")
+
+
+save.image(file=paste(outputpath,"SeuratObjectAfterAnnotation.RData",sep=""))
+sessionInfo()
+```
+
+## 8. Generate R script
+```{r generatescript, message=FALSE, warning=FALSE}
+# Reference
+# https://satijalab.org/seurat/articles/multimodal_vignette.html
+# http://www.bioconductor.org/packages/release/bioc/vignettes/scClassifR/inst/doc/classifying-cells.html
+# https://github.com/IanevskiAleksandr/sc-type
+# https://github.com/bioinfo-ibms-pumc/SCSA
+# https://github.com/rpolicastro/scProportionTest
+# https://www.biostars.org/p/457243/
+file.copy(from = "/data/../TotalSeq/Tools/annotations.html",
+          to   = "/data/../TotalSeq/Reports/site/annotations.html")
+file.remove("/data/../TotalSeq/Tools/annotation.html")
+```

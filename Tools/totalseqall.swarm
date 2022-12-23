@@ -1,0 +1,3 @@
+# This swarm file runs cellranger for all totalseq samples
+cellranger count --id=NS3R189BTS --libraries=/data/../TotalSeq/Results/cellranger/NS3R189BTS/library.csv --transcriptome=/fdb/cellranger/refdata-gex-GRCh38-2020-A --feature-ref=/data/../TotalSeq/Tools/feature_reference.csv --expect-cells=10000 --localcores=28 --localmem=64 --chemistry=SC3Pv3
+cellranger count --id=NS7R65BBTS --libraries=/data/../TotalSeq/Results/cellranger/NS7R65BBTS/library.csv --transcriptome=/fdb/cellranger/refdata-gex-GRCh38-2020-A --feature-ref=/data/../TotalSeq/Tools/feature_reference.csv --expect-cells=10000 --localcores=28 --localmem=64 --chemistry=SC3Pv3

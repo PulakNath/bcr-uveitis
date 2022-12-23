@@ -1,0 +1,165 @@
+
+---
+# This RMD file loads the seurat QCd and normalized/batch corrected data from normalization step and performs clustering
+# Author : Vijay Nagarajan, NEI/NIH
+title: "Clustering"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: no
+---
+
+```{r setup, include=FALSE}
+options(knitr.duplicate.label = "allow")
+knitr::opts_chunk$set()
+knitr::purl(input="/data/../TotalSeq/Tools/clustering.Rmd", output="/data/../TotalSeq/Tools/clustering.R")
+```
+
+## 1. Introduction
+This document takes the QCd, normalized, scaled, batch corrected data and performs clustering.
+```{r packages, message=FALSE, warning=FALSE}
+#Install and load required R packages. Install the packages if you do not already have them installed
+library(Seurat)
+library(kableExtra)
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+library(rmarkdown)
+```
+
+## 2. Load QC'd, normalized, scaled, batch corrected data
+```{r dataload, message=FALSE, warning=FALSE}
+# Load QCd, normalized data
+load('/data/../TotalSeq/Results/normalization/SeuratObjectAfterNormalization.RData')
+# Input path
+datadirectory <- "/data/../TotalSeq/Results/normalization/"
+# Output path
+outputpath="/data/../TotalSeq/Results/clustering/"
+# Set working directory
+setwd(outputpath)
+```
+
+## 3. PCA
+```{r PCA, message=FALSE, warning=FALSE}
+##################### PCA
+# Run PCA with 50 pcs
+allsamples <- RunPCA(object = allsamples, npcs=50)
+# Print genes in the top 5 pcs
+print(allsamples[["pca"]], dims = 1:5, nfeatures = 5)
+# Identify number of PCs that explains majority of variations
+ElbowPlot(allsamples, ndims=50, reduction = "pca")
+# Visualize the genes in the first PC
+VizDimLoadings(allsamples, dims = 1, ncol = 1) + theme_minimal(base_size = 8)
+# Visualize the genes in the second PC
+VizDimLoadings(allsamples, dims = 2, ncol = 1) + theme_minimal(base_size = 8)
+# Set the identity column to WT vs TG
+Idents(allsamples) <- "orig.ident"
+# Visualize the cells after pca
+DimPlot(object = allsamples, reduction = "pca")
+# Plot heatmap with cells=500 plotting cells with extreme cells on both ends of spectrum
+#DimHeatmap(object = allsamples, dims = 1:6, cells = 500, balanced = TRUE)
+DimHeatmap(object = allsamples, dims = 1:6, cells = 500, balanced = TRUE)
+```
+
+## 3. Clustering
+```{r clustering, message=FALSE, warning=FALSE}
+##################### Clustering
+# use the first 20 pc's
+use.pcs = 1:20
+# FindNeighbors with 20 pcs
+allsamples <- FindNeighbors(allsamples, reduction="pca", dims = use.pcs)
+# FindClusters with resolution starting at 0.25 and ending at 4, with 0.5 increment
+allsamples <- FindClusters(
+  object = allsamples,
+  resolution = seq(0.25,0.75,0.5),
+  verbose = FALSE
+)
+head(allsamples)
+# Count number of clusters at each resolution
+sapply(grep("res",colnames(allsamples@meta.data),value = TRUE),
+       function(x) length(unique(allsamples@meta.data[,x])))
+```
+
+## 4. tSNE
+```{r tsne, message=FALSE, warning=FALSE}
+####################### TSNE
+# Run tsne with 20 pcs
+allsamples <- RunTSNE(
+  object = allsamples,
+  reduction.use = "pca",
+  dims = use.pcs,
+  do.fast = TRUE)
+
+# Plot all clusters in all resolutions
+DimPlot(object = allsamples, group.by=grep("res",colnames(allsamples@meta.data),value = TRUE)[1:4], ncol=2 , pt.size=3.0, reduction = "tsne", label = T)
+# change default identity
+Idents(allsamples) <- "RNA_snn_res.0.25"
+# list cell number in each cluster for WT vs TG
+table(Idents(allsamples),allsamples$type)
+# Visualize cluster at 0.75 resolution
+DimPlot(object = allsamples, pt.size=0.5, reduction = "tsne", label = T)
+# Color by HC vs BCR-UV
+DimPlot(object = allsamples, pt.size=0.5, reduction = "tsne", group.by = "type" )
+```
+
+## 5. UMAP
+```{r umap, message=FALSE, warning=FALSE}
+########################## UMAP
+# Run umap with 20 pcs
+allsamples <- RunUMAP(
+  object = allsamples,
+  reduction.use = "pca",
+  dims = use.pcs)
+# Plot umap
+DimPlot(object = allsamples, pt.size=0.5, reduction = "umap", label = T)
+# Color by HC vs BCR-UV
+DimPlot(object = allsamples, pt.size=0.5, reduction = "umap", group.by = "type")
+# Plot umap
+dimplot1<-DimPlot(object = allsamples, pt.size=0.5, reduction = "umap", label = T)
+# Color by HC vs BCR-UV
+dimplot2<-DimPlot(object = allsamples, pt.size=0.5, reduction = "umap", group.by = "type")
+# Save umaps
+ggsave(paste(outputpath,"umap-clusters.pdf",sep=""), plot = dimplot1, width = 20, height = 15, units = "cm")
+ggsave(paste(outputpath,"umap-clusters-type.pdf",sep=""), plot = dimplot2, width = 20, height = 15, units = "cm")
+
+# Visualizations
+# expression of variable genes across clusters
+# Custom list of genes to visualize
+#top10
+mygenes = c("NKG7","CCL5")
+RidgePlot(allsamples, features = mygenes)
+#VlnPlot(allsamples, features = top10)
+VlnPlot(allsamples, features = mygenes, pt.size=0)
+#VlnPlot(WT_TG_Filt_Scaled, features = mygenes, split.by = "orig.ident")
+FeaturePlot(allsamples, features = mygenes)
+#FeaturePlot(WT_TG_Filt_Scaled, features = mygenes, split.by = "orig.ident")
+DotPlot(allsamples, features = mygenes)
+DoHeatmap(subset(allsamples), features = mygenes, size = 3)
+
+# Visualize ADT with GEX data
+# Specify key for rna features and ADT features
+# Add rna_ or adt_ to any gene to visualize
+rownames(allsamples[["ADT"]])
+Key(allsamples[["RNA"]])
+Key(allsamples[["ADT"]])
+
+p1 <- FeaturePlot(allsamples, "adt_CD19.1") + ggtitle("CD19.1 protein")
+p2 <- FeaturePlot(allsamples, "rna_CD19") + ggtitle("CD19 RNA")
+p1 | p2
+
+save.image(file=paste(outputpath,"SeuratObjectAfterClustering.RData",sep=""))
+sessionInfo()
+```
+
+## 6. Reference
+```{r reference}
+#https://ucdavis-bioinformatics-training.github.io/2021-March-Single-Cell-RNA-Seq-Analysis/data_analysis/scRNA_Workshop-PART4_fixed
+```
+
+## 7. Generate R script
+```{r generatescript, message=FALSE, warning=FALSE}
+file.copy(from = "/data/../TotalSeq/Tools/clustering.html",
+          to   = "/data/../TotalSeq/Reports/site/clustering.html")
+file.remove("/data/../TotalSeq/Tools/clustering.html")
+```

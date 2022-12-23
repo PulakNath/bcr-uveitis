@@ -1,0 +1,298 @@
+
+---
+# This RMD file loads the cellranger count data, performs qc, generates qc plot and merges the samples
+# Author : Vijay Nagarajan, NEI/NIH
+title: "Quality analysis and filtering"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: no
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = FALSE)
+options(knitr.duplicate.label = "allow")
+knitr::opts_chunk$set()
+```
+
+
+## 1. Introduction
+This document takes the cellranger count data for each of the samples, does qc anlaysis, filtering, generates before and after qc plots and combines the data.
+```{r packages, message=FALSE, warning=FALSE}
+# Install hdf5 library if its not already installed
+#sudo apt-get install libhdf5-dev or brew install hdf5
+#install.packages("hdf5r")
+remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
+suppressMessages(require(DoubletFinder))
+# Load below libraries
+library(Seurat)
+library(ggplot2)
+library(plotly)
+```
+
+## 2. Data setup
+```{r datasetup, message=FALSE, warning=FALSE}
+# Set the input, output paths
+datapath="/data/../TotalSeq/Results/cellranger"
+outputpath="/data/../TotalSeq/Results/qualitycontrol/"
+#datapath="/data/../TotalSeq/Results/cellranger"
+#outputpath="/data/../TotalSeq/Reports/"
+sampleinfopath="/data/../TotalSeq/SampleInformation.tab"
+setwd(outputpath)
+
+# Read the results folders
+file_list <- list.files(path=datapath)
+# List result folders
+print("Samples in this analysis")
+print(file_list)
+
+##################################### Extract and map short names
+# Read sample information file
+sampleinformation=read.csv(sampleinfopath,sep="\t")
+#View(sampleinformation)
+
+# Specify samples for analysis. Sample names should correspond to the cellranger output path folder names for the samples
+samples=c("NS3R189BTS","NS7R65BBTS")
+
+# Create empty lists to hold the combined data set
+allsamplestomerge=list()
+allsamplestomergeprefilter=list()
+```
+
+## 3. Quality Analysis and Filtering
+This part of the workflow reads in each of the samples, analyses the quality, performs the quality filter and merges the data. Both merged unfiltered and merged filtered data are then used for plotting the quality
+```{r qc, message=FALSE, warning=FALSE}
+# Using the for loop to reads the samples list
+for(i in samples)
+{
+  # Remove any old variables
+  rm(onesampledataFilt)
+  rm(onesampledata)
+  rm(onesample)
+  # Print the current sample name
+  print(i)
+  # generate a clean sample name
+  filesample=unlist(file_list[i])
+  # Read the data file
+  onesample <- Read10X_h5(file.path(datapath,paste0(i,"/"),"cellranger_output/filtered_feature_bc_matrix.h5"), use.names = T)
+  # Print column names
+  colnames(onesample$`Gene Expression`)
+  # Add gene names to columnnames
+  colnames(onesample$`Gene Expression`) <-     paste(sapply(strsplit(colnames(onesample$`Gene Expression`),split="-"),'[[',1L),i,sep="-")
+  # Print column names
+  colnames(onesample$`Gene Expression`)
+  colnames(onesample$`Antibody Capture`) <- paste(sapply(strsplit(colnames(onesample$`Antibody Capture`),split="-"),'[[',1L),i,sep="-")
+
+  # Create a Seurat data object from the gex matrix, keeping all the features, and only cells with at least 300 genes
+  onesampledata <- CreateSeuratObject(counts = onesample[["Gene Expression"]], min.cells = 0,min.features = 300,names.field = 2,names.delim = "\\-")
+  # Add the ADT assay to the seurate gex object created above
+  onesampledata[["ADT"]] <- CreateAssayObject(onesample[["Antibody Capture"]][, colnames(x = onesampledata)])
+  # Normalize ADT data with standard CLR method
+  onesampledata <- NormalizeData(onesampledata, assay = "ADT", normalization.method = "CLR")
+
+  # Check genes names
+  head(rownames(onesampledata))
+  # Check data rows and columns
+  head(onesampledata)
+
+  # Generate Percent mito for each of the cells
+  onesampledata$percent.mito <- PercentageFeatureSet(onesampledata, pattern = "^MT-")
+  summary(onesampledata$percent.mito)
+  head(onesampledata)
+
+  # Generate Percent ribo for each of the cells
+  onesampledata$percent.ribo <- PercentageFeatureSet(onesampledata, pattern = "^RP[SL]")
+  summary(onesampledata$percent.ribo)
+  head(onesampledata)
+
+  # Generate Percent hemoglobin for each of the cells
+  onesampledata$percent.hb <- PercentageFeatureSet(onesampledata, pattern = "^HB[^(P)]")
+  summary(onesampledata$percent.hb)
+  head(onesampledata)
+
+  # Check the total number of cells in this sample
+  table(onesampledata$orig.ident)
+  # Filter data and keep only cells that has percent.mito less than or equal to 8
+  onesampledataFilt <- subset(onesampledata, percent.mito <= 8)
+  # Check the number of cells after mito filtering
+  table(onesampledataFilt$orig.ident)
+  # Filter for nCount RNA (total rna molecules sequenced)
+  onesampledataFilt <- subset(onesampledataFilt, nCount_RNA >= 1000 & nCount_RNA <= 12000)
+  # Check number of cells after ncount filtering
+  table(onesampledataFilt$orig.ident)
+  # Filter for nfeature (total number of genes expressed)
+  onesampledataFilt <- subset(onesampledataFilt, nFeature_RNA >= 700)
+  # Filter for percent ribo
+  onesampledataFilt <- subset(onesampledataFilt, percent.ribo > 10 & percent.ribo < 45)
+
+  # Counts after filtering
+  table(onesampledataFilt$orig.ident)
+
+  ################################ Doublet Prediction
+  ###################### Normalize Data
+  # Feature counts for each cell are divided by the total counts for that cell and multiplied by the scale.factor. This is then natural-log transformed
+  # Cell level normalization - accounts for sequencing depth
+  onesampledataFilt <- NormalizeData(
+    object = onesampledataFilt,
+    normalization.method = "LogNormalize",
+    scale.factor = 10000)
+
+  ###################### Find variable genes
+  # Returns top 2000 variable genes
+  # VST is uses LOESS method
+  # FindVariableFeatures needs normalization
+  onesampledataFilt <- FindVariableFeatures(
+    object = onesampledataFilt,
+    selection.method = "vst")
+
+  ##################### SCALE DATA
+  # PCA needs scaled data
+  # Zero centers and scales (mean/sd) gene/feature data in each cell (for across sample comparison), so extreme ranges in expression do not affect clustering (done for making cells with similar expression cluster together)
+  onesampledataFilt <- ScaleData(
+    object = onesampledataFilt,
+    features=VariableFeatures(onesampledataFilt))
+
+  ##################### PCA and UMAP
+  # Run PCA with 50 pcs
+  onesampledataFilt <- RunPCA(
+    object = onesampledataFilt, npcs=50, verbose = T)
+  onesampledataFilt <- RunUMAP(
+    onesampledataFilt, dims = 1:10, verbose = F)
+
+  # Set expected 7% doublets
+  nExp <- round(ncol(onesampledataFilt) * 0.07)
+  # Find doublets
+  onesampledataFilt <- doubletFinder_v3(onesampledataFilt, pN = 0.25, pK = 0.09, nExp = nExp, PCs = 1:10)
+
+  # Name of the DF prediction can change, so extract the correct column name.
+  DF.name = colnames(onesampledataFilt@meta.data)[grepl("DF.classification", colnames(onesampledataFilt@meta.data))]
+  # Filter out doublets, save singlet data on to the list
+  onesampledataFilt = onesampledataFilt[, onesampledataFilt@meta.data[, DF.name] == "Singlet"]
+
+  # Total cells count after filtering
+  table(Idents(onesampledataFilt))
+
+  # Add filtered and unfiltered data to a list
+  allsamplestomerge[[i]]=onesampledataFilt
+  allsamplestomergeprefilter[[i]]=onesampledata
+}
+```
+
+## 4. Merge samples
+```{r merge, message=FALSE, warning=FALSE}
+# Create one and the rest of the samples as a list, for filtered data
+one=allsamplestomerge[[1]]
+one
+rest=allsamplestomerge[2:length(allsamplestomerge)]
+rest
+
+# Create one and the rest of the samples as a list, for prefiltered data
+onepre=allsamplestomergeprefilter[[1]]
+onepre
+restpre=allsamplestomergeprefilter[2:length(allsamplestomergeprefilter)]
+restpre
+
+# Merge filtered seurat objects
+allsamples <- merge(one, y = rest, project = "UV")
+allsamples
+head(allsamples)
+table(Idents(allsamples))
+
+# Merge prefiltered seurat objects
+allsamplespre <- merge(onepre, y = restpre, project = "UV")
+allsamplespre
+head(allsamplespre)
+table(Idents(allsamplespre))
+
+```
+## 5. Add metadata
+```{r metadata, message=FALSE, warning=FALSE}
+# Assign batch ids to samples
+allsamples$batch <- plyr::mapvalues(
+  x = allsamples$orig.ident,
+  from = sampleinformation$submitted_name,
+  to = sampleinformation$SampleBatch
+)
+head(allsamples)
+
+allsamplespre$batch <- plyr::mapvalues(
+  x = allsamplespre$orig.ident,
+  from = sampleinformation$submitted_name,
+  to = sampleinformation$SampleBatch
+)
+head(allsamplespre)
+
+# Assign sample types
+allsamples$type <- plyr::mapvalues(
+  x = allsamples$orig.ident,
+  from = sampleinformation$submitted_name,
+  to = sampleinformation$SampleType
+)
+head(allsamples)
+
+allsamplespre$type <- plyr::mapvalues(
+  x = allsamplespre$orig.ident,
+  from = sampleinformation$submitted_name,
+  to = sampleinformation$SampleType
+)
+head(allsamplespre)
+
+# View type counts
+table(allsamples$type)
+table(allsamplespre$type)
+# View batch counts
+table(allsamples$batch)
+table(allsamplespre$batch)
+# View available slots
+slotNames(allsamples)
+# View data
+head(allsamples)
+
+# Cleanup any old metadata columns from doublet finder
+pANN.name = as.vector(colnames(allsamples@meta.data)[grepl("pANN", colnames(allsamples@meta.data))])
+for (i in 1:length(pANN.name))
+{
+  allsamples@meta.data[, pANN.name[i]]<-NULL
+}
+
+DFclass.name = as.vector(colnames(allsamples@meta.data)[grepl("DF.classification", colnames(allsamples@meta.data))])
+for (i in 1:length(DFclass.name))
+{
+  allsamples@meta.data[, DFclass.name[i]]<-NULL
+}
+
+```
+
+## 6. Generate before and after QC plots
+```{r plots, message=FALSE, warning=FALSE}
+# Generate before filtering quality plots
+qcbefore=VlnPlot(allsamplespre,features = c("nFeature_RNA", "nCount_RNA","percent.mito","percent.ribo"),ncol = 2, pt.size = 0) +
+  NoLegend()
+qcbefore
+# Save the plot in current working directory
+ggsave(paste(outputpath,"before-qc-violineplot.pdf",sep=""), plot = qcbefore, width = 15, height = 20, units = "cm")
+
+# Generate after filtering quality plots
+qcafter=VlnPlot(allsamples,features = c("nFeature_RNA", "nCount_RNA","percent.mito","percent.ribo"),ncol = 2, pt.size = 0) +
+  NoLegend()
+qcafter
+# Save the plot in current working directory
+ggsave(paste(outputpath,"after-qc-violineplot.pdf",sep=""), plot = qcafter, width = 15, height = 20, units = "cm")
+
+# Save QC session data in the working directory
+save.image(file=paste(outputpath,"SeuratObjectAfterQc.RData",sep=""))
+
+# Reference
+# Doublet prediction
+# https://nbisweden.github.io/workshop-scRNAseq/labs/compiled/seurat/seurat_01_qc.html#Predict_doublets
+sessionInfo()
+```
+
+## 7. Generate R script
+```{r generatescript, message=FALSE, warning=FALSE}
+knitr::purl(input="/data/../TotalSeq/Tools/qualityControl.Rmd", output="/data/../TotalSeq/Tools/qualityControl.R")
+file.copy(from = "/data/../TotalSeq/Tools/qualityControl.html",
+          to   = "/data/../TotalSeq/Reports/site/quality-control.html")
+file.remove("/data/../TotalSeq/Tools/qualityControl.html")
+```

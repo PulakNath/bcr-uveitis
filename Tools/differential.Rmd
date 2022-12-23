@@ -1,0 +1,210 @@
+
+---
+# This RMD file loads the clustered data and finds markers - differentially expressed genes
+# Author : Vijay Nagarajan, NEI/NIH
+title: "Differential Expression"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: no
+---
+
+```{r setup, include=FALSE}
+options(knitr.duplicate.label = "allow")
+knitr::opts_chunk$set()
+#knitr::purl(input="/data/../TotalSeq/Tools/differential.Rmd", output="/data/../TotalSeq/Tools/differential.R")
+#knitr::purl(input="/data/../TotalSeq/Tools/differential.Rmd", output="/data/../TotalSeq/Tools/differential.R")
+```
+
+## 1. Introduction
+This document takes the QCd, normalized, scaled, batch corrected, clustered data and performs differential expression analysis.
+```{r packages, message=FALSE, warning=FALSE}
+#Install and load required R packages. Install the packages if you do not already have them installed
+#BiocManager::install('multtest')
+#install.packages('metap')
+library(Seurat)
+library(kableExtra)
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+library(rmarkdown)
+library(cowplot)
+
+```
+
+## 2. Load QC'd, normalized, scaled, batch corrected data and clustered data
+```{r dataload, message=FALSE, warning=FALSE}
+# Load QCd, normalized data
+load('/data/../TotalSeq/Results/clustering/SeuratObjectAfterClustering.RData')
+# Input path
+datadirectory <- "/data/../TotalSeq/Results/clustering/"
+# Output path
+outputpath="/data/../TotalSeq/Results/markers/"
+# Set working directory
+#setwd(outputpath)
+```
+
+## 3. Differential expression (HC vs BCR-UV)
+```{r differentialhcvsbcruv, message=FALSE, warning=FALSE}
+########################### Marker genes between groups
+# Current identity levels
+levels(allsamples)
+head(Idents(allsamples))
+# Change identity to HC vs BCR-UV
+Idents(allsamples) <- "type"
+head(Idents(allsamples))
+levels(allsamples)
+########################### tables
+# Proportion and counts of cells in clusters and groups
+prop.table(table(Idents(allsamples)))
+table(Idents(allsamples))
+# Find differentially expressed genes for UV vs BCR-UV
+markershcbcruv = FindMarkers(allsamples, ident.1="BCR-UV", ident.2="HC")
+head(markershcbcruv)
+# Set marker rownames
+markershcbcruv$gene=rownames(markershcbcruv)
+# Save the list of differentially expressed genes as a tab delimited text file
+write.table(markershcbcruv, file=paste(outputpath,"markershcbcruv.txt",sep=""), quote=F, row.names = FALSE, sep = "\t")
+VlnPlot(allsamples,features=c("HLA-B","TMSB4X"), pt.size = 0)
+FeaturePlot(allsamples, features="HLA-B")
+table(allsamples$type)
+
+# Get all the expression count matrix
+#head(GetAssayData(WT_TG_Filt_Scaled, slot="counts"))
+# Get expression values for a single gene from all cells
+head(FetchData(allsamples, vars="HLA-B"))
+```
+
+## 4. Differential expression between clusters
+```{r differentialbetweenclusters, message=FALSE, warning=FALSE}
+########################### tables
+# Proportion and counts of cells in clusters and groups
+# Change identity to 0.25 cluster resolution
+Idents(allsamples) <- "RNA_snn_res.0.25"
+prop.table(table(Idents(allsamples)))
+table(Idents(allsamples), allsamples$type)
+
+########################### Marker genes between clusters
+# Current identity levels
+levels(allsamples)
+head(Idents(allsamples))
+
+# Find differentially expressed genes for cluster 0 vs 1
+markerscluster = FindMarkers(allsamples, ident.1=0, ident.2=1)
+head(markerscluster)
+write.table(markerscluster, file=paste(outputpath,"markerscluster.txt",sep=""), quote=F, row.names = FALSE, sep = "\t")
+VlnPlot(allsamples,features=c("TNFRSF4","TNFRSF25"), pt.size = 0)
+FeaturePlot(allsamples, features="TNFRSF25")
+table(allsamples$orig.ident)
+
+# Get all the expression count matrix
+#head(GetAssayData(WT_TG_Filt_Scaled, slot="counts"))
+# Get expression values for a single gene from all cells
+head(FetchData(allsamples, vars="TNFRSF25"))
+```
+
+## 5. Differential expression between every clusters
+```{r differentialbetweeneveryclusters, message=FALSE, warning=FALSE}
+########################### Find all markers
+markersall=FindAllMarkers(allsamples)
+head(markersall)
+#View(markersall)
+# Save all markers as tab delimited file
+write.table(markersall, file=paste(outputpath,"markersall.txt",sep=""),quote=F, row.names = FALSE, sep = ",")
+# Plot selected markers
+VlnPlot(allsamples,features=c("CYP1B1","IL1B"), pt.size = 0)
+FeaturePlot(allsamples, features="IL1B")
+
+# Extract the top marker for each cluster
+head(markersall)
+markersall %>%
+  group_by(cluster) %>%
+    slice(1) %>%
+      pull(gene) -> best.gene.per.cluster
+
+best.gene.per.cluster
+
+# Store plot as ggplot list
+vlnplot1<-VlnPlot(allsamples,features=best.gene.per.cluster, pt.size = 0, combine = FALSE)
+# vlnplot1<-VlnPlot(allsamples,features=best.gene.per.cluster, pt.size = 0, same.y.lims = TRUE, combine = FALSE)
+
+# Set properties for each plot in the list
+p1 <- list()
+for (i in seq_along(vlnplot1)){
+    #Change x and y tick label font size.
+    p1[[i]] = vlnplot1[[i]] +
+      theme(legend.position = "none",
+            axis.text.x = element_text(size = 8),
+            axis.text.y = element_text(size = 8),
+            axis.title.y = element_text(size = 6),
+            axis.title.x = element_blank(),
+            title = element_text(size=8))
+}
+# Plot all the plots in the list
+plot_grid(plotlist = p1, ncol = 3)
+# Save plot to file
+vlnplot1=plot_grid(plotlist = p1, ncol = 3)
+ggsave(paste(outputpath,"vlnplot-best-per-cluster.pdf",sep=""), plot = vlnplot1, width = 20, height = 15, units = "cm")
+
+# Plot features in umap
+fplot1<-FeaturePlot(allsamples,features=best.gene.per.cluster, pt.size = 0, combine = FALSE)
+p2 <- list()
+for (i in seq_along(fplot1)){
+    #Change x and y label font size.
+    p2[[i]] = fplot1[[i]] +
+      theme(legend.position = "none",
+            axis.text.x = element_text(size = 8),
+            axis.text.y = element_text(size = 8),
+            axis.title.y = element_blank(),
+            axis.title.x = element_blank(),
+            title = element_text(size=8))
+}
+plot_grid(plotlist = p2, ncol = 4)
+fplot1=plot_grid(plotlist = p2, ncol = 4)
+ggsave(paste(outputpath,"fplot-best-per-cluster.pdf",sep=""), plot = fplot1, width = 20, height = 15, units = "cm")
+
+
+```
+
+## 6. Differential expression groups within a specific cluster
+
+```{r differentialgroupsinacluster, message=FALSE, warning=FALSE}
+########################### tables
+# Proportion and counts of cells in clusters and groups
+# Change identity to 0.25 cluster resolution
+Idents(allsamples) <- "RNA_snn_res.0.25"
+prop.table(table(Idents(allsamples)))
+table(Idents(allsamples))
+
+# Current identity levels
+levels(allsamples)
+head(Idents(allsamples))
+
+# Take all cells in cluster 1, and find markers that separate 'HC' and 'BCR-UV' that are in the 'orig.ident' column. subset.ident would the default identity of clusters
+markersingroup <- FindMarkers(allsamples, ident.1 = "HC", ident.2 = "BCR-UV", group.by = 'type', subset.ident = 0)
+
+head(markersingroup)
+# Save markers
+write.table(markersingroup, file="/data/../TotalSeq/Results/markers/markersingroup.txt", quote=F, row.names = FALSE, sep = "\t")
+VlnPlot(allsamples,features=c("HLA-B","IFITM1"), group.by = "type", pt.size = 0)
+FeaturePlot(allsamples, features=c("HLA-B"), split.by = "type")
+table(allsamples$type)
+
+# Get all the expression count matrix
+#head(GetAssayData(allsamples, slot="counts"))
+# Get expression values for a single gene from all cells
+head(FetchData(allsamples, vars="HLA-B"))
+
+save.image(file=paste(outputpath,"SeuratObjectAfterMarker.RData",sep=""))
+sessionInfo()
+```
+
+## 7. Generate R script
+```{r generatescript, message=FALSE, warning=FALSE}
+# Reference
+# https://satijalab.org/seurat/articles/multimodal_vignette.html
+#file.copy(from = "/data/../TotalSeq/Tools/clustering.html",
+#          to   = "/data/../TotalSeq/Reports/site/clustering.html")
+#file.remove("/data/../TotalSeq/Tools/clustering.html")
+```

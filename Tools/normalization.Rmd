@@ -1,0 +1,103 @@
+
+---
+# This RMD file loads the seurat QCd data from QC step and performs normalization, scaling and batch correction
+# Author : Vijay Nagarajan, NEI/NIH
+title: "Normalization, scaling, batch correction"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: no
+---
+
+```{r setup, include=FALSE}
+options(knitr.duplicate.label = "allow")
+knitr::opts_chunk$set()
+knitr::purl(input="/data/Sen_Lab_NEI/TotalSeq/Tools/normalization.Rmd", output="/data/Sen_Lab_NEI/TotalSeq/Tools/normalization.R")
+```
+
+## 1. Introduction
+This document takes the QCd data, performs normalization, variable genes identification and scaling.
+```{r packages, message=FALSE, warning=FALSE}
+#Install and load required R packages. Install the packages if you do not already have them installed
+library(Seurat)
+library(kableExtra)
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+library(rmarkdown)
+```
+
+## 2. Load QC'd data
+```{r dataload, message=FALSE, warning=FALSE}
+# Load QCd data
+load('/data/Sen_Lab_NEI/TotalSeq/Results/qualitycontrol/SeuratObjectAfterQc.RData')
+# Input path
+datadirectory <- "/data/Sen_Lab_NEI/TotalSeq/Results/qualitycontrol/"
+# Output path
+outputpath="/data/Sen_Lab_NEI/TotalSeq/Results/normalization/"
+# Set working directory
+setwd(outputpath)
+```
+
+## 3. Normalization
+```{r normalize, message=FALSE, warning=FALSE}
+###################### Normalize Data
+# Feature counts for each cell are divided by the total counts for that cell and multiplied by the scale.factor. This is then natural-log transformed
+# Cell level normalization - accounts for sequencing depth
+allsamples <- NormalizeData(
+  object = allsamples,
+  normalization.method = "LogNormalize",
+  scale.factor = 10000)
+
+allsamples <- NormalizeData(
+  object = allsamples,
+  assay = "ADT",
+  normalization.method = "CLR")
+
+# ADT names
+rownames(allsamples[["ADT"]])
+
+##################### Find variable genes
+# Returns top 2000 variable genes
+# VST is uses LOESS method
+# FindVariableFeatures needs normalization
+allsamples <- FindVariableFeatures(
+  object = allsamples,
+  selection.method = "vst")
+top10 <- head(VariableFeatures(allsamples), 10)
+top10
+# Plot variable features and label the top 10
+vfp1 <- VariableFeaturePlot(allsamples)
+vfp1 <- LabelPoints(plot = vfp1, points = top10, repel = TRUE)
+vfp1
+ggsave(paste(outputpath,"variablefeatureplot.pdf",sep=""), plot = vfp1, width = 20, height = 15, units = "cm")
+
+```
+
+## 4. Scaling & Batch Correction
+```{r scale, message=FALSE, warning=FALSE}
+##################### SCALE DATA
+# PCA needs scaled data
+# Zero centers and scales (mean/sd) gene/feature data in each cell (for across sample comparison), so extreme ranges in expression do not affect clustering (done for making cells with similar expression cluster together)
+dim(allsamples)
+allsamples <- ScaleData(
+  object = allsamples,
+  # Remove unwanted sources of variation (technical, batch etc.)
+  vars.to.regress = c("percent.mito", "nFeature_RNA", "percent.ribo", "nCount_RNA", "batch"))
+
+# Save Normalized, Scaled session data in the working directory
+save.image(file=paste(outputpath,"SeuratObjectAfterNormalization.RData",sep=""))
+
+# Reference
+# Doublet prediction
+# https://ucdavis-bioinformatics-training.github.io/2021-March-Single-Cell-RNA-Seq-Analysis/data_analysis/scRNA_Workshop-PART2_fixed
+sessionInfo()
+```
+
+## 5. Generate R script
+```{r generatescript, message=FALSE, warning=FALSE}
+file.copy(from = "/data/Sen_Lab_NEI/TotalSeq/Tools/normalization.html",
+          to   = "/data/Sen_Lab_NEI/TotalSeq/Reports/site/normalization.html")
+file.remove("/data/Sen_Lab_NEI/TotalSeq/Tools/normalization.html")
+```
