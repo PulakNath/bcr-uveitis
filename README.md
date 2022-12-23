@@ -10,9 +10,9 @@ General scripts/code/pipeline/documentation used for analyzing the BCR uveitis s
 
 ### 1. Project Folder Structure
 
-- index.html : [The main web page][407cfcf7] describing the workflow, with detailed commands, system output and results
+- index.html : (https://pulaknath.github.io/bcr-uveitis/index.html) describing the workflow, with detailed commands, system output and results for the two sample demo workflow analysis
 - [Protocols](Protocols) : Contains experiment/protocol details
-- [Reports](Reports) : Contains all the html files for the workflow documentation
+- [docs](docs) : Contains all the html files for the workflow documentation
 - [Results](Results) : Contains all the results for the example data run
 - [Tools](Tools) : Contains all the scripts and reference files
 - [SampleInformation.tab](SampleInformation.tab) : Contains the sample information for the example data
@@ -24,13 +24,13 @@ General scripts/code/pipeline/documentation used for analyzing the BCR uveitis s
 ### 2. Workflow
 The workflow consists of the following components;
 
-1. [Primary analysis](https://effective-robot-f7fafb1a.pages.github.io/Reports/primary-analysis.html)
-2. [Quality Control](https://effective-robot-f7fafb1a.pages.github.io/Reports/qualityControl.html)
-3. [Normalization](https://effective-robot-f7fafb1a.pages.github.io/Reports/normalization.html)
-4. [Clustering](https://effective-robot-f7fafb1a.pages.github.io/Reports/clustering.html)
-5. [Differential Expression Analysis](https://effective-robot-f7fafb1a.pages.github.io/Reports/differential.html)
-6. [Annotation](https://effective-robot-f7fafb1a.pages.github.io/Reports/annotation.html)
-7. [Subcluster analysis](https://github.com/NIH-NEI/bcr-uveitis/blob/main/Tools/subcluster.R)
+1. [Primary analysis](https://pulaknath.github.io/bcr-uveitis/primary-analysis.html)
+2. [Quality Control](https://pulaknath.github.io/bcr-uveitis/qualityControl.html)
+3. [Normalization](https://pulaknath.github.io/bcr-uveitis/normalization.html)
+4. [Clustering](https://pulaknath.github.io/bcr-uveitis/clustering.html)
+5. [Differential Expression Analysis](https://pulaknath.github.io/bcr-uveitis/differential.html)
+6. [Annotation](https://pulaknath.github.io/bcr-uveitis/annotation.html)
+7. [Subcluster analysis](https://github.com/PulakNath/bcr-uveitis/blob/main/Tools/subcluster.R)
 
 ### 3. System requirements
 - The workflow was developed, tested and run in CentOS Linux 7 (Core) machine, with R version 4.2.2 (2022-10-31), Python 3.8 and Pandas 1.2.4.
