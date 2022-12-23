@@ -1,0 +1,14 @@
+HC	UV
+C0_Classical Monocytes	7882	3460
+C1_CD4+ T cells	4068	15
+C2_CD8+ cells	3386	356
+C3_CD4+ T cells 	760	1300
+C4_Natural Killer cells	69	1970
+C5_ B cells	982	891
+C6_Monocytes/Neutrophils	1065	535
+C7_CD4+ T cells	695	755
+C8_CD8+ NKT-like cells	197	628
+C9_Non-classical Monocytes	250	404
+C10_Platelets	155	191
+C11_CD4+ T cells 	104	44
+C12_Myeloid Dendritic cells	17	10
