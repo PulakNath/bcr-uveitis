@@ -1,0 +1,14 @@
+clusternumber,clustername
+0,C0_CD4+ T cells
+1,C1_Classical Monocytes
+2,C2_CD4+ cells
+3,C3_CD8+ T cells 
+4,C4_CD4+ T cells
+5,C5_NK cells
+6,C6_Monocytes/Neutrophils
+7,C7_B cells
+8,C8_CD8+ NKT-like cells
+9,C9_CD4+ T cells
+10,C10_Platelets
+11,C11_Ionocytes/Monoytes
+12,C12_Plasmacytoid Dendritic cells

@@ -1,0 +1,32 @@
+Cell Type	Z-score	Cluster
+Platelet	0.31466040906833476	3
+Natural killer cell	1.787843985716075	5
+Lymphoid cell	-0.4135306414456811	5
+Plasmacytoid dendritic cell	-0.4135306414456811	5
+AXL+SIGLEC6+ dendritic cell	-0.475543728988648	5
+Platelet	-0.4852389738360644	5
+CD1C-CD141- dendritic cell	1.9379419145824142	6
+Myeloid dendritic cell	0.8817941047863116	6
+CD1C+_B dendritic cell	0.4833006277772402	6
+Neutrophil	-0.4589039400826267	6
+CD141+CLEC9A+ dendritic cell	-0.6983260852996651	6
+CD1C+_A dendritic cell	-0.7072156428690652	6
+Hematopoietic stem cell	-0.7136972652474528	6
+Plasmacytoid dendritic cell	-0.7248937136471577	6
+B cell	1.3225128764657363	7
+Dendritic cell	1.238613570083867	7
+CD141+CLEC9A+ dendritic cell	-0.4985471930938752	7
+Plasmacytoid dendritic cell	-0.5046734219285396	7
+Leukocyte	-0.7761016800344436	7
+Myeloid dendritic cell	-0.7818041514927452	7
+Circulating fetal cell	0.8250306296478435	10
+CD1C-CD141- dendritic cell	0.7071067811865498	11
+CD1C+_B dendritic cell	-0.7071067811865452	11
+Plasmacytoid dendritic cell	2.376206027367856	12
+Basophil	0.09871510531008654	12
+Eosinophil	0.09871510531008654	12
+AXL+SIGLEC6+ dendritic cell	-0.434011678794468	12
+CD1C-CD141- dendritic cell	-0.5045116866752467	12
+Lymphoid cell	-0.539950301223465	12
+CD141+CLEC9A+ dendritic cell	-0.544376947015872	12
+Hematopoietic stem cell	-0.5507856242789775	12

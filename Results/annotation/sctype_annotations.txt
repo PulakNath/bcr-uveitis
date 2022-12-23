@@ -1,0 +1,14 @@
+cluster	type	scores
+2	Naive CD4+ T cells	761.067566973162
+1	Classical Monocytes	5413.22558258271
+0	Naive CD4+ T cells	1472.3905099828
+6	Classical Monocytes	6800.40396979543
+3	Naive CD8+ T cells	2140.80292691434
+5	CD8+ NKT-like cells	6035.35367174135
+7	Pre-B cells	6738.57909300975
+9	Memory CD4+ T cells	1182.07794839951
+10	Platelets	2946.31362556555
+4	ISG expressing immune cells	1597.85753600115
+11	Classical Monocytes	803.1409899949
+8	CD8+ NKT-like cells	954.471782842157
+12	Plasmacytoid Dendritic cells	266.19465747031

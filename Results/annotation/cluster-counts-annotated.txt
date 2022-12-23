@@ -1,0 +1,14 @@
+HC	UV
+C0_CD4+ T cells	7882	3460
+C1_Classical Monocytes	4068	15
+C2_CD4+ cells	3386	356
+C3_CD8+ T cells 	760	1300
+C4_CD4+ T cells	69	1970
+C5_NK cells	982	891
+C6_Monocytes/Neutrophils	1065	535
+C7_B cells	695	755
+C8_CD8+ NKT-like cells	197	628
+C9_CD4+ T cells	250	404
+C10_Platelets	155	191
+C11_Ionocytes/Monoytes	104	44
+C12_Plasmacytoid Dendritic cells	17	10

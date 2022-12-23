@@ -1,0 +1,323 @@
+Cell Type	Z-score	Cluster
+B cell		1
+Plasmacytoid dendritic cell		1
+CD4+ cytotoxic T cell		3
+Natural killer T (NKT) cell		3
+Platelet		3
+SLC16A7+ cell		3
+Natural killer cell	3.578402981145413	5
+Natural killer T (NKT) cell	1.5512082825679843	5
+Microglial cell	0.48391045209124595	5
+T helper1 (Th1) cell	0.4013513709286849	5
+Lymphoid cell	0.312181724025929	5
+Plasmacytoid dendritic cell	0.2700449681946068	5
+CD4+ cytotoxic T cell	-0.1835396181883578	5
+Effector CD8+ memory T (Tem) cell	-0.3584193259330683	5
+T cell	-0.4630505469644851	5
+Megakaryocyte erythroid cell	-0.4630505469644851	5
+Sertoli cell	-0.48395339384437847	5
+CD8+ cytotoxic T cell	-0.505187302795807	5
+Cytotoxic T cell	-0.505187302795807	5
+CD8+ T cell	-0.5069723007984126	5
+Paneth cell	-0.5159718747168691	5
+Monocyte	-0.5195840358607843	5
+AXL+SIGLEC6+ dendritic cell	-0.5210588263408109	5
+SLC16A7+ cell	-0.5235402107221921	5
+Platelet	-0.5235402107221921	5
+Granulocyte-monocyte progenitor	-0.524044282306214	5
+Monocyte	5.885959151605368	6
+Neutrophil	4.652158752309174	6
+Macrophage	2.987795108776191	6
+Mesenchymal stem cell	2.6123931016906785	6
+Microglial cell	2.4212596832662294	6
+Dendritic cell	2.1548597449050444	6
+Myeloid cell	1.58872628228975	6
+Epithelial cell	1.5793443859733713	6
+Myeloid dendritic cell	1.5450008123039063	6
+Paneth cell	0.8454513098063045	6
+Astrocyte	0.8054010168828658	6
+CD1C-CD141- dendritic cell	0.7309640947591937	6
+Basophil	0.49954641492066965	6
+Monocyte derived dendritic cell	0.49824929800859774	6
+Mesenchymal stromal cell	0.44744411852982824	6
+Hematopoietic stem cell	0.3510629235513215	6
+Natural killer cell	0.2808583537040943	6
+Natural killer T (NKT) cell	0.26568507699594696	6
+CD1C+_B dendritic cell	0.11102966106170836	6
+Liver bud hepatic cell	0.01628579689485077	6
+Multilymphoid progenitor cell	-0.04579753256567132	6
+Acinar cell	-0.14977616733372673	6
+Gonadal endothelial cell	-0.19212695617301057	6
+Endothelial cell	-0.19509288134627845	6
+Eosinophil	-0.20986267892053853	6
+Secretory progenitor cell	-0.2122962369608431	6
+Mitotic arrest phase fetal germ cell	-0.23495565825620146	6
+Oogenesis phase fetal germ cell	-0.25732276823884115	6
+Sertoli cell	-0.2744831045644129	6
+Basal cell	-0.2762512259012052	6
+Ionocyte cell	-0.28651132282264036	6
+Leydig cell	-0.2875646246176219	6
+Mitotic fetal germ cell	-0.2958102478561525	6
+Enterocyte progenitor cell	-0.3123321001666847	6
+Brush cell (Tuft cell)	-0.31589612302183556	6
+Neuroendocrine cell	-0.31589612302183556	6
+Granulosa cell	-0.32596615666205453	6
+Secretory cell	-0.3284095711291326	6
+Oligodendrocyte progenitor cell	-0.3323676986209215	6
+FOXN4+ cell	-0.3341248524807093	6
+Stromal cell	-0.338165368344302	6
+Retinoid acid signaling-responsive fetal germ cell	-0.3400150670084923	6
+T cell	-0.3426184050674988	6
+Adipose-derived stem cell	-0.3426184050674988	6
+Megakaryocyte erythroid cell	-0.3426184050674988	6
+Granulocyte	-0.3426184050674988	6
+Leydig precursor cell	-0.34385442160606733	6
+Oligodendrocyte	-0.34862860308281923	6
+Ciliated cell	-0.34986619923481954	6
+Ciliated epithelial cell	-0.3548646547432731	6
+Trophectoderm cell	-0.35581709398661626	6
+DCLK1+ progenitor cell	-0.3568915425557847	6
+B cell	-0.3570330731387955	6
+Granulocyte-monocyte progenitor	-0.3582283572181823	6
+Effector CD8+ memory T (Tem) cell	-0.3593353355650957	6
+Mesenchymal cell	-0.35990603259158765	6
+Lymphoid-primed multipotent progenitor cell	-0.38178799776721944	6
+M2 macrophage	-0.3825913773987119	6
+T helper17 (Th17) cell	-0.3825913773987119	6
+Mast cell	-0.38620549991861913	6
+Tuft progenitor cell	-0.387222799429805	6
+Limbal stem cell	-0.3910956536112925	6
+FGFR1HighNME5- epithelial cell	-0.39114901059183566	6
+CD141+CLEC9A+ dendritic cell	-0.39255228306281786	6
+Dental pulp stem cell	-0.39255228306281786	6
+Hepatic progenitor-like cell	-0.39255228306281786	6
+Mesoderm cell	-0.39255228306281786	6
+Myeloblast	-0.39255228306281786	6
+Enterocyte	-0.39255228306281786	6
+Pluripotent stem cell	-0.39255228306281786	6
+Adipose-derived stromal cell	-0.39255228306281786	6
+Immune cell	-0.39255228306281786	6
+Zymogenic chief cell	-0.39255228306281786	6
+Thecal cell	-0.39255228306281786	6
+Stem cell	-0.39255228306281786	6
+Pericyte	-0.39255228306281786	6
+CD1C+_A dendritic cell	-0.3963408066580136	6
+Beta cell	-0.39840977031251656	6
+Pit progenitor cell	-0.3985028747073127	6
+Morula cell (Blastomere)	-0.3985028747073127	6
+Proerythroblast	-0.39910312403139964	6
+Naive CD8+ T cell	-0.4007535301052215	6
+1-cell stage cell (Blastomere)	-0.4007988173037233	6
+SLC16A7+ cell	-0.4017063726860673	6
+Immature myeloid cell	-0.4038747910815897	6
+Plasmacytoid dendritic cell	-0.4038747910815897	6
+Myeloid-derived suppressor cell	-0.4038747910815897	6
+Non-classical monocyte	-0.4038747910815897	6
+Intermediate monocyte	-0.4038747910815897	6
+Lymphoid cell	-0.4038747910815897	6
+Myeloid conventional dendritic cell	-0.4038747910815897	6
+CD16+ dendritic cell	-0.4038747910815897	6
+Suppressive monocyte	-0.4038747910815897	6
+Specialist antigen presenting cell	-0.4038747910815897	6
+Classical monocyte	-0.4038747910815897	6
+Conventional dendritic cell	-0.4038747910815897	6
+Primitive endoderm cell	-0.404399079057129	6
+Endothelial stem cell	-0.40481191872445677	6
+Neural stem cell	-0.40588880246602826	6
+Neural crest cell	-0.40588880246602826	6
+CD4+ cytotoxic T cell	-0.40609646550171447	6
+Neural progenitor cell	-0.40609646550171447	6
+Migration phase fetal germ cell	-0.40704753914029007	6
+CD14+CD16+ monocyte	-0.4080013062889863	6
+Meiotic prophase fetal germ cell	-0.40888224965907605	6
+B cell	5.887959174127021	7
+Dendritic cell	1.0225853665967255	7
+Monocyte	0.7556835697208626	7
+Myeloid dendritic cell	0.5519353537443064	7
+Microglial cell	0.1880611128976578	7
+Plasma cell	0.0790723199083254	7
+Plasmacytoid dendritic cell	0.059990038555075155	7
+Epithelial cell	0.00510130142465555	7
+Paneth cell	-0.08385301554677761	7
+Secretory cell	-0.1102571941053785	7
+Macrophage	-0.22835160338412802	7
+Multilymphoid progenitor cell	-0.23218563965134498	7
+Granulosa cell	-0.23390998133475027	7
+Natural killer T (NKT) cell	-0.2389134644016061	7
+Mitotic arrest phase fetal germ cell	-0.24559627579303397	7
+CD141+CLEC9A+ dendritic cell	-0.24727632844466071	7
+Megakaryocyte erythroid cell	-0.2575653146563236	7
+T cell	-0.2575653146563236	7
+Retinoid acid signaling-responsive fetal germ cell	-0.25760231512892895	7
+Sertoli cell	-0.26735779222290107	7
+Follicular B cell	-0.26952783993981316	7
+Immune cell	-0.27061215197136496	7
+Multipotent mesenchymal stroma cell	-0.2839694932149245	7
+Mesenchymal stem cell	-0.2868988358008428	7
+Marginal zone B cell	-0.2969539473649002	7
+MKI67+ progenitor cell	-0.2969539473649002	7
+Lymphoid-primed multipotent progenitor cell	-0.2969539473649002	7
+Leydig precursor cell	-0.2969539473649002	7
+Atypical memory B cell	-0.2970163305299659	7
+Leukocyte	-0.2970163305299659	7
+Hematopoietic cell	-0.2970163305299659	7
+Oligodendrocyte progenitor cell	-0.2972657095001717	7
+Astrocyte	-0.2972657095001717	7
+Secretory progenitor cell	-0.2973801293566135	7
+Specialist antigen presenting cell	-0.298038259396452	7
+Oogenesis phase fetal germ cell	-0.30195510506338724	7
+Gonadal endothelial cell	-0.3020439957138081	7
+Mitotic fetal germ cell	-0.3020439957138081	7
+Endothelial cell	-0.3020439957138081	7
+Migration phase fetal germ cell	-0.3020439957138081	7
+Natural killer cell	2.295638237629289	8
+T helper17 (Th17) cell	1.4696493063794172	8
+Natural killer T (NKT) cell	0.520129929793922	8
+Monocyte	-0.4768336005830559	8
+Lymphoid cell	-0.5419020751372229	8
+Megakaryocyte erythroid cell	-0.5419020751372229	8
+Multilymphoid progenitor cell	-0.5419020751372229	8
+T cell	-0.5419020751372229	8
+T helper cell	-0.5419020751372229	8
+Granulosa cell	-0.5495367487667298	8
+Microglial cell	-0.5495367487667298	8
+Regulatory T (Treg) cell	1.5	9
+Natural killer T (NKT) cell	-0.49999999999999983	9
+Natural regulatory T (Treg) cell	-0.49999999999999983	9
+SLC16A7+ cell	-0.49999999999999983	9
+Megakaryocyte	2.0275983315031514	10
+Endothelial cell	2.0038431161654153	10
+Sertoli cell	1.5794091962974683	10
+Astrocyte	0.8879633604231393	10
+Megakaryocyte progenitor cell	-0.3170434911828119	10
+Multilymphoid progenitor cell	-0.4773047377733592	10
+Pyramidal cell	-0.5126532328646968	10
+Circulating fetal cell	-0.5321854558011806	10
+Platelet	-0.5454348610083647	10
+Gonadal endothelial cell	-0.5744774471846735	10
+MKI67+ progenitor cell	-0.5744774471846735	10
+Alpha cell	-0.5930474662778829	10
+Dendritic cell	-0.5930474662778829	10
+Mast cell	-0.5930474662778829	10
+Mitotic arrest phase fetal germ cell	-0.5930474662778829	10
+Purkinje cell	-0.5930474662778829	10
+Monocyte	4.025471838766702	11
+Neutrophil	3.721584969208603	11
+Macrophage	2.124867327273226	11
+Microglial cell	1.7787170672629384	11
+Astrocyte	0.785233393881782	11
+CD1C-CD141- dendritic cell	0.09674690293542618	11
+CD1C+_B dendritic cell	0.07442738885656958	11
+Paneth cell	0.05754803986524221	11
+Natural killer T (NKT) cell	-0.04858971930383393	11
+Monocyte derived dendritic cell	-0.17596867840636396	11
+Multilymphoid progenitor cell	-0.26105239854044715	11
+Granulosa cell	-0.283701574585625	11
+Eosinophil	-0.2846222405143944	11
+Mitotic fetal germ cell	-0.30390644805600686	11
+Oligodendrocyte progenitor cell	-0.32111928779296317	11
+Gonadal endothelial cell	-0.3266164123112378	11
+Mitotic arrest phase fetal germ cell	-0.33065365733923	11
+Enterocyte progenitor cell	-0.35159985977834984	11
+FOXN4+ cell	-0.35409972035008735	11
+Acinar cell	-0.35409972035008735	11
+Basal cell	-0.3596092649062806	11
+Secretory progenitor cell	-0.3596092649062806	11
+Lymphoid-primed multipotent progenitor cell	-0.3596092649062806	11
+Ionocyte cell	-0.36935198380457296	11
+CD14+CD16+ monocyte	-0.3801391321957313	11
+Mast cell	-0.38344229028775095	11
+Retinoid acid signaling-responsive fetal germ cell	-0.38344229028775095	11
+Sertoli cell	-0.38344229028775095	11
+Ciliated cell	-0.38427560552541706	11
+Naive CD8+ T cell	-0.3889394148060255	11
+Oogenesis phase fetal germ cell	-0.38938698025656676	11
+DCLK1+ progenitor cell	-0.39144308309028386	11
+Natural killer cell	-0.3918186754847794	11
+Secretory cell	-0.39236374901905324	11
+Endothelial cell	-0.393777354512218	11
+Megakaryocyte	-0.3944631753124974	11
+Granulocyte-monocyte progenitor	-0.3944631753124974	11
+Effector CD8+ memory T (Tem) cell	-0.3944631753124974	11
+CD4+ cytotoxic T cell	-0.3944631753124974	11
+Goblet cell	-0.3947371312208166	11
+1-cell stage cell (Blastomere)	-0.39507216143297996	11
+B cell	-0.39621784096489393	11
+Leydig cell	-0.397018365788221	11
+Liver bud hepatic cell	-0.397018365788221	11
+Plasmacytoid dendritic cell	7.392340951658344	12
+B cell	2.3140532926524653	12
+Basophil	1.673258741085314	12
+Eosinophil	1.4639230943938473	12
+Natural killer T (NKT) cell	1.2475051812274163	12
+Monocyte	0.6899370850156505	12
+Dendritic cell	0.527411910483707	12
+Granulocyte-monocyte progenitor	0.46613777590711303	12
+Natural killer cell	0.4196674514397171	12
+Lymphoid cell	0.4196674514397171	12
+Megakaryocyte-erythroid progenitor	0.4193324163875365	12
+Myeloid cell	0.4193324163875365	12
+Dendritic cell progenitor	0.4193324163875365	12
+Hematopoietic cell	0.4193324163875365	12
+Microglial cell	0.3426245503808942	12
+Hematopoietic stem cell	0.22617395488040065	12
+Multilymphoid progenitor cell	0.03585079065721548	12
+Paneth cell	-0.021363700874086237	12
+Oogenesis phase fetal germ cell	-0.15384086317185472	12
+Sertoli cell	-0.15863964052266452	12
+CD4+ cytotoxic T cell	-0.21151341603806015	12
+AXL+SIGLEC6+ dendritic cell	-0.22726474052053067	12
+Mitotic fetal germ cell	-0.24486050586548702	12
+Effector CD8+ memory T (Tem) cell	-0.24593890700735602	12
+Macrophage	-0.25619958503627965	12
+Meiotic prophase fetal germ cell	-0.2591138294859881	12
+Secretory cell	-0.25932218163204224	12
+Mitotic arrest phase fetal germ cell	-0.25932972113635555	12
+Gonadal endothelial cell	-0.26638750079903306	12
+DCLK1+ progenitor cell	-0.2781717921268103	12
+Liver bud hepatic cell	-0.2847679263971818	12
+Gonadal mitotic phase fetal germ cell	-0.29607138551006407	12
+Specialist antigen presenting cell	-0.3038772503704266	12
+Mast cell	-0.30743898676021875	12
+CD1C-CD141- dendritic cell	-0.312834128090053	12
+Granulosa cell	-0.32204013385567765	12
+Ionocyte cell	-0.323768364009312	12
+Enterocyte	-0.324436790574839	12
+Leydig cell	-0.34780934142552544	12
+Astrocyte	-0.34821992702467236	12
+Oligodendrocyte progenitor cell	-0.34821992702467236	12
+Leydig precursor cell	-0.34821992702467236	12
+Mesenchymal stem cell	-0.3496839171201071	12
+Retinoid acid signaling-responsive fetal germ cell	-0.3496839171201071	12
+Neuroendocrine cell	-0.35024871357587944	12
+Brush cell (Tuft cell)	-0.35024871357587944	12
+T cell	-0.3558477480081038	12
+CD8+ cytotoxic T cell	-0.3558477480081038	12
+Cytotoxic T cell	-0.3558477480081038	12
+Megakaryocyte erythroid cell	-0.3558477480081038	12
+Monocyte derived dendritic cell	-0.35587051968411615	12
+Granulocyte	-0.35587051968411615	12
+Hematopoietic precursor cell	-0.35587051968411615	12
+Suppressive monocyte	-0.35587051968411615	12
+Classical monocyte	-0.35587051968411615	12
+Intermediate monocyte	-0.35587051968411615	12
+Immature myeloid cell	-0.35587051968411615	12
+Megakaryocyte	-0.35587051968411615	12
+CD16+ dendritic cell	-0.35587051968411615	12
+Non-classical monocyte	-0.35587051968411615	12
+Neutrophil	-0.35587051968411615	12
+Germinal center B cell	-0.3582570497833985	12
+Ciliated cell	-0.3591814016003037	12
+Trophectoderm cell	-0.3602533278291342	12
+Endothelial cell	-0.36122058952727115	12
+CD141+CLEC9A+ dendritic cell	-0.36122058952727115	12
+Exhausted CD4+ T cell	-0.36275887425651127	12
+Plasma cell	-0.3629409360007559	12
+M2 macrophage	-0.3629409360007559	12
+Follicular helper (Tfh) T cell	-0.3629409360007559	12
+T helper17 (Th17) cell	-0.3629409360007559	12
+T helper2 (Th2) cell	-0.3629409360007559	12
+T helper9 (Th9) cell	-0.3629409360007559	12
+Memory B cell	-0.3689991218284593	12
+SLC16A7+ cell	-0.3694314420907583	12
+Lymphoid-primed multipotent progenitor cell	-0.3694314420907583	12
