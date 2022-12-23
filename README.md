@@ -44,7 +44,7 @@ The workflow consists of the following components;
 
 ### 4. Installation guide
 The workflow components could be dowloaded and installed from the below link in less than an hour or so depending on the download speed of the user;
-https://github.com/NIH-NEI/bcr-uveitis/archive/refs/heads/main.zip
+https://github.com/PulakNath/bcr-uveitis/archive/refs/heads/main.zip
 The workflow components take several hours to run, depending on the number of samples and number of cells in the dataset. Run time for individual components, for the demo data analysis is provided as part of the result/documentation. Detailed setup and any required install guidance is also provided in the workflow documentation.
 
 ### 5. Demo data and instructions for use
