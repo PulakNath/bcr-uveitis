@@ -52,8 +52,11 @@ The workflow components take several hours to run, depending on the number of sa
   - https://www.ncbi.nlm.nih.gov/bioproject/PRJNA855114
 - The cellranger processed data (count matrix and metric summary), are available for the two demo example dataset used in the documentation, in the [Results/cellranger](Results/cellranger) folder.
 - Detailed instructions to use the workflow for analyzing the demo data is provided in the included documentation, along with the expected output and expected run times.
+- 
+### 6. How to cite this material
+10.5281/zenodo.11117731
 
-### 6. Software license
+### 7. Software license
 The license is provided under the [NEI Software Distribution Agreement](LICENSE).
 
 This work utilized the computational resources of the NIH HPC Biowulf cluster.
